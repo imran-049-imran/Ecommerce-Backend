@@ -1,29 +1,37 @@
+version: "3.8"
+
 services:
   mysql:
     image: mysql:8.0
     container_name: mysql-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_ROOT_PASSWORD: root@123
       MYSQL_DATABASE: ecommerceDB
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot@123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   app:
     build: .
     container_name: ecommerce-backend
     ports:
-      - "8081:8080"
+      - "8080:8080"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecommerceDB
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root123
+      SPRING_DATASOURCE_PASSWORD: root@123
       JWT_SECRET_KEY: MySuperSecretKeyForJWTThatIsAtLeast32CharsLong123
-      STRIPE_SECRET_KEY: sk_test_key
+      STRIPE_SECRET_KEY: sk_test_51SBwGfEcSzkF5XoFsIXopBjzQp8aLAG66xtbYZlWcJJo35URF9NcJ5IEJ81hmGiz71tNQvNj1QpFV6wyFHkZsHoa00dYeXEKQX
 
 volumes:
   mysql_data:
